@@ -1,13 +1,14 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || ''
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  // Render free tier can take 30–60s to wake from sleep
+  timeout: 60000,
 })
 
 api.interceptors.request.use((config) => {

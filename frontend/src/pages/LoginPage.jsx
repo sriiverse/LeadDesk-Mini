@@ -39,7 +39,13 @@ export default function LoginPage() {
       toast.success('Welcome back!')
       navigate('/admin', { replace: true })
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Login failed. Please try again.')
+      if (!error.response) {
+        toast.error(
+          'Cannot reach the API. Check VITE_API_URL on Vercel, and wait if Render is waking up.',
+        )
+      } else {
+        toast.error(error.response?.data?.error || 'Login failed. Please try again.')
+      }
     } finally {
       setLoading(false)
     }

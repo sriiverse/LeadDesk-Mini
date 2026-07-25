@@ -14,12 +14,22 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    frontend_url = app.config["FRONTEND_URL"]
-    allowed_origins = [
-        frontend_url,
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
+    frontend_url = (app.config["FRONTEND_URL"] or "").rstrip("/")
+    extra_origins = [
+        origin.strip().rstrip("/")
+        for origin in os.getenv("CORS_ORIGINS", "").split(",")
+        if origin.strip()
     ]
+    allowed_origins = list(
+        {
+            frontend_url,
+            *extra_origins,
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+        }
+    )
+    # Drop empty entries
+    allowed_origins = [origin for origin in allowed_origins if origin]
 
     CORS(
         app,
