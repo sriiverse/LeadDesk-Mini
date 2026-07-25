@@ -1,175 +1,155 @@
-import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
-import { ArrowDown, ArrowRight, Sparkles, TrendingUp, Users } from 'lucide-react'
-import Button from '../ui/Button'
+import { motion } from 'framer-motion'
+import { ArrowDown, ArrowRight, Play } from 'lucide-react'
+import AuroraBackground from '../effects/AuroraBackground'
+import MagneticButton from '../effects/MagneticButton'
+import HeroDashboard from './HeroDashboard'
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery'
 
-const floatingCards = [
-  {
-    title: 'Conversion Rate',
-    value: '+38%',
-    subtitle: 'This month',
-    icon: TrendingUp,
-    className: 'left-[4%] top-[22%] sm:left-[6%] sm:top-[28%]',
+const wordContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+}
+
+const wordItem = {
+  hidden: { y: '110%', opacity: 0, rotateX: 40 },
+  show: {
+    y: '0%',
+    opacity: 1,
+    rotateX: 0,
+    transition: { type: 'spring', stiffness: 90, damping: 14 },
   },
-  {
-    title: 'Active Pipeline',
-    value: '128',
-    subtitle: 'Qualified leads',
-    icon: Users,
-    className: 'right-[4%] top-[18%] sm:right-[7%] sm:top-[24%]',
-  },
-  {
-    title: 'Response Time',
-    value: '2.4h',
-    subtitle: 'Avg. follow-up',
-    icon: Sparkles,
-    className:
-      'bottom-[14%] left-1/2 -translate-x-1/2 sm:bottom-[18%] sm:left-auto sm:right-[12%] sm:translate-x-0',
-  },
-]
+}
 
 export default function Hero() {
   const reduced = usePrefersReducedMotion()
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-  const springX = useSpring(mouseX, { stiffness: 40, damping: 18 })
-  const springY = useSpring(mouseY, { stiffness: 40, damping: 18 })
-  const inverseX = useTransform(springX, (value) => -value)
-
-  useEffect(() => {
-    if (reduced) return undefined
-
-    const onMove = (event) => {
-      const { innerWidth, innerHeight } = window
-      mouseX.set((event.clientX / innerWidth - 0.5) * 28)
-      mouseY.set((event.clientY / innerHeight - 0.5) * 20)
-    }
-
-    window.addEventListener('mousemove', onMove)
-    return () => window.removeEventListener('mousemove', onMove)
-  }, [mouseX, mouseY, reduced])
 
   return (
-    <section className="relative min-h-[100svh] overflow-hidden pt-24 pb-16 sm:pt-28">
+    <section className="relative min-h-[100svh] overflow-hidden pt-24 pb-10 sm:pt-28 sm:pb-16">
+      <AuroraBackground />
+
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <motion.div
-          className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-indigo-500/30 blur-3xl"
-          style={reduced ? undefined : { x: springX, y: springY }}
-          animate={
-            reduced ? undefined : { scale: [1, 1.15, 1], opacity: [0.35, 0.55, 0.35] }
-          }
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute right-[-4rem] top-24 h-80 w-80 rounded-full bg-blue-500/25 blur-3xl"
-          style={reduced ? undefined : { x: inverseX, y: springY }}
-          animate={
-            reduced ? undefined : { scale: [1.1, 0.95, 1.1], opacity: [0.3, 0.5, 0.3] }
-          }
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute bottom-10 left-1/3 h-64 w-64 rounded-full bg-violet-500/20 blur-3xl"
-          animate={reduced ? undefined : { y: [0, -24, 0], x: [0, 18, 0] }}
-          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(129,140,248,0.14),transparent_45%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(7,10,18,0.55)_70%,#070a12)]" />
+        {Array.from({ length: 18 }).map((_, index) => (
+          <motion.span
+            key={index}
+            className="absolute h-1 w-1 rounded-full bg-white/50"
+            style={{
+              left: `${8 + ((index * 17) % 84)}%`,
+              top: `${12 + ((index * 23) % 70)}%`,
+            }}
+            animate={
+              reduced
+                ? undefined
+                : {
+                    opacity: [0.15, 0.8, 0.15],
+                    y: [0, -18, 0],
+                    scale: [1, 1.4, 1],
+                  }
+            }
+            transition={{
+              duration: 4 + (index % 5),
+              repeat: Infinity,
+              delay: index * 0.2,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
       </div>
 
-      {!reduced &&
-        floatingCards.map((card, index) => (
+      <div className="container-app relative z-10">
+        <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
           <motion.div
-            key={card.title}
-            className={`pointer-events-none absolute z-10 hidden w-[180px] sm:block lg:w-[210px] ${card.className}`}
-            style={{ x: springX, y: springY }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 + index * 0.12, duration: 0.6 }}
+            initial={reduced ? false : { opacity: 0, y: 20, filter: 'blur(8px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-cyan-100/90 shadow-[0_0_40px_rgba(34,211,238,0.12)]"
           >
-            <div className="gradient-border p-[1px] shadow-2xl shadow-indigo-500/10">
-              <div className="rounded-[1.2rem] bg-[#0d1220]/80 p-4 backdrop-blur-xl">
-                <div className="mb-3 flex items-center gap-2 text-indigo-300">
-                  <card.icon className="h-4 w-4" />
-                  <span className="text-xs uppercase tracking-[0.14em] text-white/45">
-                    {card.title}
-                  </span>
-                </div>
-                <p className="font-[family-name:var(--font-display)] text-2xl font-semibold text-white">
-                  {card.value}
-                </p>
-                <p className="mt-1 text-xs text-white/45">{card.subtitle}</p>
-              </div>
-            </div>
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inset-0 animate-ping rounded-full bg-cyan-300/70" />
+              <span className="relative h-2 w-2 rounded-full bg-cyan-300" />
+            </span>
+            Next-gen lead intelligence
           </motion.div>
-        ))}
 
-      <div className="container-app relative z-20 flex min-h-[calc(100svh-8rem)] flex-col items-center justify-center text-center">
-        <motion.p
-          initial={reduced ? false : { opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-indigo-200/90"
-        >
-          <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-          Lead Management, Reimagined
-        </motion.p>
-
-        <motion.h1
-          initial={reduced ? false : { opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, delay: 0.08 }}
-          className="font-[family-name:var(--font-display)] text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
-        >
-          <span className="block text-white">LeadDesk Mini</span>
-          <span className="mt-2 block text-gradient">Capture. Track. Convert.</span>
-        </motion.h1>
-
-        <motion.p
-          initial={reduced ? false : { opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, delay: 0.18 }}
-          className="mt-6 max-w-2xl text-base text-white/60 sm:text-lg md:text-xl"
-        >
-          A premium lead desk for modern teams — glass-smooth workflows, instant
-          insights, and a CRM-light experience that feels built for operators.
-        </motion.p>
-
-        <motion.div
-          initial={reduced ? false : { opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.28 }}
-          className="mt-9 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center"
-        >
-          <Button as="a" href="#contact" size="lg" className="w-full sm:w-auto">
-            Start Capturing Leads
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Button>
-          <Button
-            as={Link}
-            to="/login"
-            variant="secondary"
-            size="lg"
-            className="w-full sm:w-auto"
+          <motion.h1
+            variants={wordContainer}
+            initial={reduced ? false : 'hidden'}
+            animate="show"
+            className="font-[family-name:var(--font-display)] text-[3rem] leading-[0.92] font-semibold tracking-[-0.045em] text-white sm:text-6xl md:text-7xl lg:text-[6rem]"
           >
-            View Admin Panel
-          </Button>
-        </motion.div>
+            <span className="block overflow-hidden pb-1">
+              <motion.span variants={wordItem} className="inline-block text-gradient-animated">
+                Capture.
+              </motion.span>
+            </span>
+            <span className="block overflow-hidden pb-1">
+              <motion.span variants={wordItem} className="inline-block text-gradient-animated">
+                Track.
+              </motion.span>
+            </span>
+            <span className="block overflow-hidden">
+              <motion.span variants={wordItem} className="inline-block text-white">
+                Convert.
+              </motion.span>
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={reduced ? false : { opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="mx-auto mt-6 max-w-2xl text-base text-white/55 sm:text-lg md:text-xl"
+          >
+            A cinematic lead desk for operators who want clarity, speed, and a product that feels
+            inevitable.
+          </motion.p>
+
+          <motion.div
+            initial={reduced ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, type: 'spring', stiffness: 100, damping: 16 }}
+            className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
+          >
+            <MagneticButton
+              href="#contact"
+              className="liquid-btn inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl px-7 text-base font-semibold text-white sm:w-auto"
+            >
+              Start Capturing Leads
+              <motion.span
+                animate={reduced ? undefined : { x: [0, 4, 0] }}
+                transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </motion.span>
+            </MagneticButton>
+
+            <MagneticButton
+              as="link"
+              to="/login"
+              strength={0.25}
+              className="glass inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl px-7 text-base font-medium text-white/90 sm:w-auto"
+            >
+              <Play className="h-4 w-4 text-cyan-300" />
+              Open Dashboard
+            </MagneticButton>
+          </motion.div>
+        </div>
+
+        <div className="relative mt-14 sm:mt-16 lg:mt-20">
+          <HeroDashboard />
+        </div>
 
         <motion.a
           href="#features"
-          className="mt-14 inline-flex min-h-11 flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-white/40 transition hover:text-white/70"
-          initial={reduced ? false : { opacity: 0 }}
+          className="mx-auto mt-12 flex min-h-11 w-fit flex-col items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/35 transition hover:text-white/70"
+          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 1.2 }}
           aria-label="Scroll to features"
         >
           <span>Scroll</span>
           <motion.span
-            animate={reduced ? undefined : { y: [0, 6, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            animate={reduced ? undefined : { y: [0, 8, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
           >
             <ArrowDown className="h-4 w-4" />
           </motion.span>
