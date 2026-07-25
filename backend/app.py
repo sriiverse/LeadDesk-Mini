@@ -1,4 +1,5 @@
 import os
+import re
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -20,16 +21,19 @@ def create_app():
         for origin in os.getenv("CORS_ORIGINS", "").split(",")
         if origin.strip()
     ]
-    allowed_origins = list(
-        {
+    allowed_origins = [
+        origin
+        for origin in {
             frontend_url,
             *extra_origins,
             "http://localhost:5173",
             "http://127.0.0.1:5173",
         }
-    )
-    # Drop empty entries
-    allowed_origins = [origin for origin in allowed_origins if origin]
+        if origin
+    ]
+    # Preview / production frontend hosts
+    allowed_origins.append(re.compile(r"https://.*\.vercel\.app"))
+    allowed_origins.append(re.compile(r"https://.*\.netlify\.app"))
 
     CORS(
         app,
@@ -49,6 +53,10 @@ def create_app():
 
     @app.get("/api/health")
     def health():
+        return jsonify({"status": "ok", "service": "LeadDesk Mini API"}), 200
+
+    @app.get("/")
+    def root():
         return jsonify({"status": "ok", "service": "LeadDesk Mini API"}), 200
 
     @jwt.unauthorized_loader

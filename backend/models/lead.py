@@ -1,4 +1,5 @@
 from .database import get_db
+from utils.serialize import serialize_row
 
 
 class Lead:
@@ -25,7 +26,7 @@ class Lead:
             """,
             (lead_id,),
         ).fetchone()
-        return dict(row) if row else None
+        return serialize_row(row)
 
     @staticmethod
     def get_all(search=None, status=None):
@@ -45,10 +46,10 @@ class Lead:
             query += " AND status = ?"
             params.append(status)
 
-        query += " ORDER BY datetime(created_at) DESC"
+        query += " ORDER BY created_at DESC"
 
         rows = db.execute(query, params).fetchall()
-        return [dict(row) for row in rows]
+        return [serialize_row(row) for row in rows]
 
     @staticmethod
     def update_status(lead_id, status):

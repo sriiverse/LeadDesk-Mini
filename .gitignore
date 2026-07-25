@@ -22,6 +22,10 @@ frontend/.env
 *.db
 *.sqlite
 *.sqlite3
+backend/*.db
+
+# Vercel
+.vercel
 
 # Logs / OS / IDE
 logs/

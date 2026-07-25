@@ -1,4 +1,5 @@
 from .database import get_db
+from utils.serialize import serialize_row
 
 
 class User:
@@ -9,7 +10,7 @@ class User:
             "SELECT id, email, password_hash, created_at FROM users WHERE email = ?",
             (email.lower(),),
         ).fetchone()
-        return dict(row) if row else None
+        return serialize_row(row)
 
     @staticmethod
     def find_by_id(user_id):
@@ -18,4 +19,4 @@ class User:
             "SELECT id, email, password_hash, created_at FROM users WHERE id = ?",
             (user_id,),
         ).fetchone()
-        return dict(row) if row else None
+        return serialize_row(row)

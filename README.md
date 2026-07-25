@@ -13,8 +13,9 @@ LeadDesk Mini is a full-stack application with:
 - A public marketing website (hero, features, pricing, testimonials, contact)
 - Real JWT authentication with bcrypt password hashing
 - An admin dashboard with live stats, search, and status updates
-- SQLite persistence and a clean REST API
-- Deployment-ready configuration for **Netlify** (frontend) and **Render** (backend)
+- SQLite locally, Neon Postgres in production
+- Clean REST API
+- Deployment-ready for **Vercel** (frontend + backend together)
 
 ---
 
@@ -72,11 +73,12 @@ LeadDesk Mini is a full-stack application with:
 - Gunicorn
 
 ### Database
-- SQLite
+- SQLite (local development)
+- Neon Postgres (Vercel production via `DATABASE_URL`)
 
 ### Deployment
-- Frontend → Netlify
-- Backend → Render
+- **Recommended:** Vercel (frontend + Flask API in one project)
+- Optional split: Netlify frontend + Render backend
 
 ---
 
@@ -288,30 +290,50 @@ Passwords are hashed with **Flask-Bcrypt**. Tokens are issued with **Flask-JWT-E
 
 ## Deployment Steps
 
-### Backend (Render)
+### Recommended: Vercel (frontend + backend together)
 
-1. Push the repository to GitHub
-2. Create a new **Web Service** on Render
-3. Set root directory to `backend`
-4. Build command: `pip install -r requirements.txt`
-5. Start command: `gunicorn wsgi:app`
-6. Add environment variables from `backend/.env.example`
-7. Set `FRONTEND_URL` to your Netlify domain
-8. Deploy and copy the Render URL
+This repo is configured for a **single Vercel project**:
+- React frontend from `frontend/`
+- Flask API from `api/index.py` (+ `backend/`)
+- Neon Postgres via `DATABASE_URL`
 
-A `backend/render.yaml` blueprint is included for one-click style setup.
+#### 1) Create a Neon database
+1. Go to [neon.tech](https://neon.tech) or Vercel Marketplace → **Neon**
+2. Create a project/database
+3. Copy the **pooled** connection string (`DATABASE_URL`)
 
-### Frontend (Netlify)
+#### 2) Deploy on Vercel
+1. Import `sriiverse/LeadDesk-Mini` into Vercel
+2. Use **root directory = repository root** (not `frontend/`)
+3. Vercel will read root `vercel.json`
+4. Add environment variables:
 
-1. Create a new Netlify site from the repo
-2. Set base directory to `frontend`
-3. Build command: `npm run build`
-4. Publish directory: `dist`
-5. Add environment variable:
-   - `VITE_API_URL=https://your-render-service.onrender.com`
-6. Deploy
+| Key | Value |
+|---|---|
+| `DATABASE_URL` | Neon pooled Postgres URL |
+| `SECRET_KEY` | long random string |
+| `JWT_SECRET_KEY` | long random string |
+| `ADMIN_EMAIL` | `admin@leaddesk.com` |
+| `ADMIN_PASSWORD` | your admin password |
+| `FRONTEND_URL` | your Vercel URL (e.g. `https://leaddesk.vercel.app`) |
+| `FLASK_ENV` | `production` |
 
-`frontend/netlify.toml` already configures SPA redirects.
+Leave `VITE_API_URL` **empty** (same-origin `/api` calls).
+
+5. Deploy
+6. Test:
+   - `https://YOUR-VERCEL-URL/api/health`
+   - Login at `/login`
+
+#### Local development (unchanged)
+- Backend: SQLite via `python app.py` in `backend/`
+- Frontend: `npm run dev` in `frontend/` (Vite proxies `/api`)
+
+### Optional split deploy (Render + Netlify)
+Still supported:
+- Backend on Render (`backend/`, `gunicorn wsgi:app`)
+- Frontend on Netlify (`frontend/`, set `VITE_API_URL` to Render URL)
+- Set Render `FRONTEND_URL` to the Netlify domain
 
 ---
 

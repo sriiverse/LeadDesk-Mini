@@ -1,5 +1,6 @@
 import axios from 'axios'
 
+// Empty on Vercel (same-origin /api). Locally Vite proxies /api -> Flask.
 const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 
 const api = axios.create({
@@ -7,7 +8,6 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Render free tier can take 30–60s to wake from sleep
   timeout: 60000,
 })
 

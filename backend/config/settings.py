@@ -14,6 +14,13 @@ class Config:
     JWT_HEADER_TYPE = "Bearer"
 
     DATABASE_PATH = os.getenv("DATABASE_PATH", "leaddesk.db")
+    # Preferred in production (Neon / Vercel Postgres). When set, SQLite is unused.
+    DATABASE_URL = (
+        os.getenv("DATABASE_URL")
+        or os.getenv("POSTGRES_URL")
+        or os.getenv("POSTGRES_PRISMA_URL")
+        or ""
+    )
     ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@leaddesk.com")
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Admin@123456")
     FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
