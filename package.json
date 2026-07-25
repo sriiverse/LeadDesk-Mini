@@ -1,0 +1,11 @@
+{
+  "name": "leaddesk-mini",
+  "private": true,
+  "version": "1.0.0",
+  "description": "LeadDesk Mini — Modern Lead Management SaaS",
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint"
+  }
+}

@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: leaddesk-mini-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@leaddesk.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DATABASE_PATH
+        value: leaddesk.db
+      - key: FRONTEND_URL
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.12.0"
